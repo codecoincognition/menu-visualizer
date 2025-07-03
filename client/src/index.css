@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --primary: hsl(220, 91%, 54%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 84%, 4.9%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215, 13%, 65%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 84%, 4.9%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --ring: hsl(222, 84%, 4.9%);
+  --radius: 0.5rem;
+  --chart-1: hsl(220, 91%, 54%);
+  --chart-2: hsl(173, 58%, 39%);
+  --chart-3: hsl(197, 37%, 24%);
+  --chart-4: hsl(43, 74%, 66%);
+  --chart-5: hsl(27, 87%, 67%);
+  
+  /* Custom colors for the app */
+  --blue-50: hsl(214, 100%, 96%);
+  --blue-100: hsl(214, 95%, 93%);
+  --blue-600: hsl(221, 83%, 53%);
+  --blue-700: hsl(221, 83%, 45%);
+  --gray-50: hsl(210, 40%, 98%);
+  --gray-100: hsl(210, 40%, 96%);
+  --gray-200: hsl(214, 32%, 91%);
+  --gray-300: hsl(213, 27%, 84%);
+  --gray-400: hsl(215, 20%, 65%);
+  --gray-500: hsl(215, 16%, 47%);
+  --gray-600: hsl(215, 19%, 35%);
+  --gray-700: hsl(215, 25%, 27%);
+  --gray-900: hsl(222, 84%, 4.9%);
+  --emerald-600: hsl(158, 64%, 52%);
+  --emerald-700: hsl(158, 64%, 42%);
+  --red-600: hsl(0, 84%, 60%);
+  --red-700: hsl(0, 84%, 50%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --primary: hsl(220, 91%, 54%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(217, 32%, 17%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --accent: hsl(217, 32%, 17%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(217, 32%, 17%);
+  --input: hsl(217, 32%, 17%);
+  --ring: hsl(224, 71%, 4%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar styling */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground));
+}
+
+/* Loading animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Drag and drop styling */
+.drag-over {
+  @apply border-blue-400 bg-blue-50;
+}
+
+/* Focus styles for accessibility */
+.focus-visible\:outline-none:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Custom button hover effects */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Code syntax highlighting */
+pre code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Audio player progress bar */
+.audio-progress {
+  transition: width 0.3s ease;
+}
+
+/* Image preview styling */
+.image-preview {
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+}
