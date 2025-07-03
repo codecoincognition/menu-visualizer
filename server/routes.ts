@@ -49,7 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mimeType: req.file.mimetype,
           },
         },
-        "Analyze this image in detail. Describe its key elements, composition, colors, mood, and any notable features. Be descriptive and engaging, as this will be converted to speech for educational purposes.",
+        "Analyze this image in a concise paragraph. Describe the key elements, colors, and mood. Keep it engaging but brief, as this will be converted to speech. Use markdown formatting for emphasis.",
       ];
 
       const response = await gemini.models.generateContent({

@@ -85,18 +85,7 @@ export default function Home() {
           onClose={() => setShowCodeModal(false)}
         />
 
-        {/* Footer */}
-        <footer className="mt-16 text-center text-gray-500 text-sm">
-          <div className="space-y-2">
-            <p>Educational Template for Learning Multimodal AI Development</p>
-            <p>Modify this code to build your own AI-powered applications</p>
-            <div className="flex justify-center space-x-6 mt-4">
-              <a href="#" className="hover:text-gray-700">Documentation</a>
-              <a href="#" className="hover:text-gray-700">GitHub</a>
-              <a href="#" className="hover:text-gray-700">Tutorials</a>
-            </div>
-          </div>
-        </footer>
+
       </main>
     </div>
   );

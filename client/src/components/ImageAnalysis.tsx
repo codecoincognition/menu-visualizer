@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from "react-markdown";
 import AudioPlayer from "./AudioPlayer";
 
 interface AnalysisResult {
@@ -81,9 +82,9 @@ export default function ImageAnalysis({
             </Button>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-gray-700 leading-relaxed">
-              {result.analysisText}
-            </p>
+            <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+              <ReactMarkdown>{result.analysisText}</ReactMarkdown>
+            </div>
           </div>
         </div>
 
