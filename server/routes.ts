@@ -1,8 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertImageAnalysisSchema } from "@shared/schema";
-import { z } from "zod";
 import { GoogleGenAI } from "@google/genai";
 import multer from "multer";
 
@@ -53,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ];
 
       const response = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-pro",
         contents: contents,
       });
 
