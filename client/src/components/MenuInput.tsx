@@ -291,17 +291,14 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       </div>
 
       {/* Example Menu Image */}
-      <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-        <div className="aspect-video bg-white rounded-lg shadow-sm flex items-center justify-center">
-          <div className="text-center p-8">
-            <FileText className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Sample Menu</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>• Grilled Salmon with lemon and herbs</p>
-              <p>• Caesar Salad with romaine lettuce</p>
-              <p>• Pasta Carbonara with bacon</p>
-              <p>• Margherita Pizza with fresh basil</p>
-              <p>• Chicken Tacos with salsa</p>
+      <Card className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <div className="bg-white rounded-lg shadow-sm flex items-center justify-center py-4">
+          <div className="text-center p-4">
+            <FileText className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Sample Menu</h3>
+            <div className="text-xs text-gray-600 space-y-0.5">
+              <p>• Grilled Salmon • Caesar Salad</p>
+              <p>• Pasta Carbonara • Pizza • Tacos</p>
             </div>
           </div>
         </div>
