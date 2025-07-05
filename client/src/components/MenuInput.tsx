@@ -347,49 +347,50 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
           </div>
         </form>
 
-        {/* Processing Status */}
-        {processingStatus && (
-          <Card className="mt-4">
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm font-medium">{processingStatus.message}</span>
+        {/* Processing Overlay */}
+        {processMenuMutation.isPending && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <img 
+                    src={logoPath} 
+                    alt="Menu to Image Logo" 
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                
-                {processingStatus.total && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Progress</span>
-                      <span>{processingStatus.current || 0} / {processingStatus.total}</span>
+                <div className="space-y-2">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+                  <h3 className="text-lg font-semibold text-gray-900">Processing Your Menu</h3>
+                  <p className="text-sm text-gray-600">
+                    Our AI is analyzing your menu and generating custom food images...
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                      <span>Parsing menu items</span>
                     </div>
-                    <Progress 
-                      value={((processingStatus.current || 0) / processingStatus.total) * 100} 
-                      className="w-full"
-                    />
-                  </div>
-                )}
-
-                {processingStatus.items && processingStatus.items.length > 0 && (
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-700 mb-1">Found menu items:</p>
-                    <div className="text-gray-600 space-y-1">
-                      {processingStatus.items.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          {processingStatus.completedItems.some(completed => completed.name === item) ? (
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                          ) : (
-                            <div className="w-3 h-3 border border-gray-300 rounded-full" />
-                          )}
-                          <span className={processingStatus.completedItems.some(completed => completed.name === item) ? "text-green-700" : ""}>{item}</span>
-                        </div>
-                      ))}
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-300"></div>
+                      <span>Generating AI descriptions</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-700"></div>
+                      <span>Creating custom food images</span>
                     </div>
                   </div>
-                )}
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400">
+                  This may take 10-30 seconds depending on the number of items
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </div>
     </div>
