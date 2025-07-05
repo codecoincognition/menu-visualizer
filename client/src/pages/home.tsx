@@ -401,6 +401,9 @@ export default function Home() {
           {/* Right Column - Output & Visualization Panel */}
           <div>
             <Card className="p-6 h-full min-h-96">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Results</h2>
+              </div>
               {menuItems.length === 0 ? (
                 /* Empty State */
                 <div className="h-full flex items-center justify-center">
@@ -414,7 +417,7 @@ export default function Home() {
                         </div>
                       ))}
                     </div>
-                    <h3 className="text-lg font-medium text-gray-600">Your beautiful food images will appear here</h3>
+                    <h3 className="text-lg font-medium text-gray-600">Once you provide your input, your beautiful food images will appear here</h3>
                     <p className="text-sm text-gray-500">
                       AI-generated images will showcase each menu item with professional food photography
                     </p>
