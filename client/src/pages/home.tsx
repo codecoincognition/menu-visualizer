@@ -418,6 +418,18 @@ export default function Home() {
                       className="min-h-32 resize-none text-base leading-relaxed"
                       disabled={processMenuMutation.isPending}
                     />
+                    
+                    {/* Try Sample Menu Link */}
+                    <div className="text-left">
+                      <button
+                        type="button"
+                        onClick={loadSampleMenu}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
+                        disabled={processMenuMutation.isPending}
+                      >
+                        Try a Sample Menu
+                      </button>
+                    </div>
                   </div>
 
                   {/* OR Divider */}
@@ -490,18 +502,6 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Try Sample Menu Link */}
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={loadSampleMenu}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
-                      disabled={processMenuMutation.isPending}
-                    >
-                      Try a Sample Menu
-                    </button>
                   </div>
 
                   {/* Primary CTA Button */}
