@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,57 @@ interface ProcessMenuResponse {
   sessionId: number;
   menuItems: MenuItem[];
   success: boolean;
+}
+
+function ProcessingOverlay() {
+  const [currentMessage, setCurrentMessage] = useState("Starting menu processing...");
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  const messages = [
+    "Analyzing your menu input...",
+    "Extracting food items...",
+    "Generating AI descriptions...", 
+    "Creating beautiful food images...",
+    "Finalizing results..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => {
+        const next = (prev + 1) % messages.length;
+        setCurrentMessage(messages[next]);
+        return next;
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <img 
+              src={logoPath} 
+              alt="Menu to Image Logo" 
+              className="w-16 h-16 object-contain"
+            />
+          </div>
+          <div className="space-y-3">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+            <h3 className="text-lg font-semibold text-gray-900">Processing Your Menu</h3>
+            <p className="text-base text-gray-700 min-h-[1.5rem] transition-all duration-500">
+              {currentMessage}
+            </p>
+          </div>
+          <p className="text-xs text-gray-400">
+            This may take 10-30 seconds depending on the number of items
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -502,48 +553,7 @@ export default function Home() {
 
       {/* Processing Overlay */}
       {processMenuMutation.isPending && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <img 
-                  src={logoPath} 
-                  alt="Menu to Image Logo" 
-                  className="w-16 h-16 object-contain"
-                />
-              </div>
-              <div className="space-y-2">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
-                <h3 className="text-lg font-semibold text-gray-900">Processing Your Menu</h3>
-                <p className="text-sm text-gray-600">
-                  Our AI is analyzing your menu and generating custom food images...
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="text-xs text-gray-500 space-y-1">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-                    <span>Parsing menu items</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-300"></div>
-                    <span>Generating AI descriptions</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-700"></div>
-                    <span>Creating custom food images</span>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-400">
-                This may take 10-30 seconds depending on the number of items
-              </p>
-            </div>
-          </div>
-        </div>
+        <ProcessingOverlay />
       )}
     </div>
   );
