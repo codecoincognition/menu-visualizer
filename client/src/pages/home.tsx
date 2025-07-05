@@ -469,21 +469,28 @@ export default function Home() {
                   </div>
 
                   {/* Menu Items Grid */}
-                  <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {menuItems.map((item) => (
-                      <Card key={item.id} className="overflow-hidden">
-                        <div className="aspect-video relative mb-3">
-                          <img 
-                            src={item.imageUrl} 
-                            alt={item.name}
-                            className="w-full h-full object-cover rounded-t-lg"
-                          />
+                      <div key={item.id} className="group">
+                        <div className="relative">
+                          <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-200">
+                            <img 
+                              src={item.imageUrl} 
+                              alt={item.name}
+                              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                            />
+                            {/* Hover overlay with description */}
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-200 flex items-center justify-center p-4">
+                              <p className="text-white text-sm text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 leading-relaxed">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-3 text-center">
+                            <h3 className="font-semibold text-gray-900 text-base leading-tight">{item.name}</h3>
+                          </div>
                         </div>
-                        <div className="p-4 pt-0">
-                          <h3 className="font-semibold text-gray-900 mb-2 text-lg">{item.name}</h3>
-                          <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
-                        </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </div>
