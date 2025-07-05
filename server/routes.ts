@@ -2,9 +2,24 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { GoogleGenAI } from "@google/genai";
-
+import multer from "multer";
 // Initialize Gemini client
 const gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'text/plain') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files and text files are allowed'));
+    }
+  },
+});
 
 interface ParsedMenuItem {
   name: string;
@@ -80,43 +95,135 @@ function parseMenuTextSimple(menuText: string): ParsedMenuItem[] {
   return items.slice(0, 10); // Limit to 10 items
 }
 
-async function generateFoodImage(foodName: string): Promise<string> {
-  // For now, use high-quality food placeholders 
-  // In production, you'd integrate with DALL-E or similar image generation service
-  const cleanName = encodeURIComponent(foodName);
-  return `https://picsum.photos/400/300?random=${Date.now()}&text=${cleanName}`;
+async function generateFoodImage(foodName: string, description: string): Promise<string> {
+  try {
+    const prompt = `Generate a high-quality, professional food photography image of ${foodName}. ${description}. The image should be appetizing, well-lit, restaurant-quality presentation on a clean background.`;
+
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.0-flash-exp",
+      contents: [prompt],
+    });
+
+    // Since Gemini 2.0 Flash supports image generation, let's handle the response
+    if (response.candidates && response.candidates[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData && part.inlineData.data) {
+          // Return base64 data URL for the generated image
+          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+        }
+      }
+    }
+    
+    // Fallback to a more realistic food placeholder
+    return `https://source.unsplash.com/400x300/?${encodeURIComponent(foodName)},food`;
+  } catch (error) {
+    console.error("Error generating food image:", error);
+    // Use Unsplash as fallback for realistic food images
+    return `https://source.unsplash.com/400x300/?${encodeURIComponent(foodName)},food`;
+  }
+}
+
+async function parseMenuFromImage(imageBuffer: Buffer, mimeType: string): Promise<ParsedMenuItem[]> {
+  try {
+    const base64Image = imageBuffer.toString('base64');
+    
+    const prompt = `Analyze this menu image and extract only valid food items. For each food item, provide:
+1. A clean name (title case)
+2. A brief, appetizing description
+
+Return a JSON array of objects with "name" and "description" fields. Ignore any non-food items like prices, restaurant info, or categories. Only include actual food dishes.
+
+Return only the JSON array, no other text.`;
+
+    const response = await gemini.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: [
+        {
+          inlineData: {
+            data: base64Image,
+            mimeType: mimeType,
+          },
+        },
+        prompt
+      ],
+    });
+
+    const responseText = response.text;
+    
+    if (!responseText) {
+      throw new Error("No response text received from Gemini");
+    }
+    
+    // Extract JSON from response
+    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON found in response");
+    }
+
+    const parsedItems = JSON.parse(jsonMatch[0]);
+    
+    // Validate the parsed items
+    return parsedItems.filter((item: any) => 
+      item && 
+      typeof item.name === 'string' && 
+      typeof item.description === 'string' &&
+      item.name.trim().length > 0
+    );
+  } catch (error) {
+    console.error("Error parsing menu image:", error);
+    throw new Error("Failed to parse menu image");
+  }
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Process menu text endpoint
-  app.post("/api/process-menu", async (req, res) => {
+  // Process menu (text or image) endpoint
+  app.post("/api/process-menu", upload.single("menuFile"), async (req, res) => {
     try {
       const { menuText } = req.body;
-
-      if (!menuText || typeof menuText !== 'string') {
-        return res.status(400).json({ error: "Menu text is required" });
-      }
+      const uploadedFile = req.file;
 
       if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ error: "Gemini API key not configured" });
       }
 
-      // Parse menu text to extract food items
-      const parsedItems = await parseMenuText(menuText);
+      let parsedItems: ParsedMenuItem[] = [];
+      let sourceText = "";
+
+      // Handle uploaded file (image or text)
+      if (uploadedFile) {
+        if (uploadedFile.mimetype.startsWith('image/')) {
+          // Process uploaded menu image
+          parsedItems = await parseMenuFromImage(uploadedFile.buffer, uploadedFile.mimetype);
+          sourceText = `Uploaded image: ${uploadedFile.originalname}`;
+        } else if (uploadedFile.mimetype === 'text/plain') {
+          // Process uploaded text file
+          const textContent = uploadedFile.buffer.toString('utf-8');
+          parsedItems = await parseMenuText(textContent);
+          sourceText = textContent;
+        }
+      } 
+      // Handle text input
+      else if (menuText && typeof menuText === 'string') {
+        parsedItems = await parseMenuText(menuText);
+        sourceText = menuText;
+      } 
+      else {
+        return res.status(400).json({ error: "Please provide menu text or upload a menu file" });
+      }
       
       if (parsedItems.length === 0) {
-        return res.status(400).json({ error: "No valid food items found in the menu text" });
+        return res.status(400).json({ error: "No valid food items found in the menu" });
       }
 
       // Create menu session
       const session = await storage.createMenuSession({
-        originalText: menuText,
+        originalText: sourceText,
       });
 
       // Generate images and create menu items
       const menuItems = [];
       for (const item of parsedItems) {
-        const imageUrl = await generateFoodImage(item.name);
+        const imageUrl = await generateFoodImage(item.name, item.description);
         
         const menuItem = await storage.createMenuItem({
           name: item.name,

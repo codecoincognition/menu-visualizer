@@ -30,8 +30,26 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
   const { toast } = useToast();
 
   const processMenuMutation = useMutation({
-    mutationFn: async (text: string): Promise<ProcessMenuResponse> => {
-      const response = await apiRequest("POST", "/api/process-menu", { menuText: text });
+    mutationFn: async (data: { menuText?: string; file?: File }): Promise<ProcessMenuResponse> => {
+      const formData = new FormData();
+      
+      if (data.file) {
+        formData.append('menuFile', data.file);
+      }
+      if (data.menuText) {
+        formData.append('menuText', data.menuText);
+      }
+
+      const response = await fetch('/api/process-menu', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process menu');
+      }
+
       return response.json();
     },
     onSuccess: (data) => {
@@ -60,22 +78,36 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       });
       return;
     }
-    processMenuMutation.mutate(menuText);
+    processMenuMutation.mutate({ menuText });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "text/plain") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        setMenuText(text);
-      };
-      reader.readAsText(file);
+    if (!file) return;
+
+    // Support both images and text files
+    if (file.type.startsWith('image/') || file.type === 'text/plain') {
+      if (file.type === 'text/plain') {
+        // For text files, also update the textarea
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          setMenuText(text);
+        };
+        reader.readAsText(file);
+      }
+      
+      // Process the file directly
+      processMenuMutation.mutate({ file });
+      
+      toast({
+        title: "Processing file...",
+        description: `Analyzing ${file.name}`,
+      });
     } else {
       toast({
         title: "Invalid file type",
-        description: "Please upload a text file (.txt)",
+        description: "Please upload an image file or text file (.txt)",
         variant: "destructive",
       });
     }
@@ -139,13 +171,13 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
             <div className="relative">
               <input
                 type="file"
-                accept=".txt"
+                accept="image/*,.txt"
                 onChange={handleFileUpload}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               <Button type="button" variant="outline" className="w-full">
                 <Upload className="w-4 h-4 mr-2" />
-                Upload File
+                Upload Menu
               </Button>
             </div>
           </div>

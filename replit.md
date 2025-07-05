@@ -17,18 +17,20 @@ This is a full-stack food menu visualization application that transforms text-ba
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
-- **API Integration**: Google Gemini API for image analysis
-- **File Handling**: Multer for multipart/form-data processing
+- **API Integration**: Google Gemini API for text parsing and image generation
+- **File Handling**: Multer for multipart/form-data processing (images and text files)
+- **Image Generation**: Gemini 2.0 Flash with Unsplash fallback for food images
 - **Storage**: In-memory storage with interface for future database integration
 
 ### Key Components
 
 #### Menu Processing Pipeline
 1. **Text Input**: Users can paste menu text or upload text files
-2. **AI Parsing**: Google Gemini 1.5 Flash extracts food items from text
-3. **Food Item Extraction**: Filters valid food items and generates descriptions
-4. **Image Generation**: Creates placeholder food images for visual display
-5. **Result Storage**: Menu items stored in memory with structured schema
+2. **Image Input**: Users can upload menu images (JPG, PNG) for OCR processing
+3. **AI Parsing**: Google Gemini 1.5 Flash extracts food items from text or images
+4. **Food Item Extraction**: Filters valid food items and generates descriptions
+5. **Image Generation**: Gemini 2.0 Flash generates realistic food images with Unsplash fallback
+6. **Result Storage**: Menu items stored in memory with structured schema
 
 #### Text-to-Speech Integration
 - Browser-based Speech Synthesis API for reading menu items aloud
@@ -97,8 +99,15 @@ Drizzle ORM configured with PostgreSQL schema:
 ## Changelog
 
 ```
-Changelog:
-- July 03, 2025. Initial setup
+- July 05, 2025: Transformed app into Menu Visualizer
+  - Updated schema for menu items and sessions
+  - Added text and image menu processing with Gemini AI
+  - Integrated food image generation with Gemini 2.0 Flash
+  - Added file upload support for menu images and text files
+  - Implemented text-to-speech for menu reading
+  - Created mobile-friendly UI matching design specifications
+
+- July 03, 2025: Initial setup
 ```
 
 ## User Preferences
