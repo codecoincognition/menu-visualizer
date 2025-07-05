@@ -96,33 +96,10 @@ function parseMenuTextSimple(menuText: string): ParsedMenuItem[] {
 }
 
 async function generateFoodImage(foodName: string, description: string): Promise<string> {
+  // Skip AI generation for now and use reliable fallbacks
+  console.log(`Generating image for: ${foodName}`);
+  
   try {
-    // Try using the image generation model first
-    const prompt = `Generate a high-quality, professional food photography image of ${foodName}. ${description}. The image should be appetizing, well-lit, restaurant-quality presentation on a clean background.`;
-
-    const response = await gemini.models.generateContent({
-      model: "gemini-2.0-flash-preview-image-generation",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        responseModalities: ["TEXT", "IMAGE"],
-      },
-    });
-
-    // Check if image was generated
-    if (response.candidates && response.candidates[0]?.content?.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData && part.inlineData.data) {
-          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        }
-      }
-    }
-    
-    // Fallback to Picsum with food-specific seed
-    const seed = encodeURIComponent(foodName).replace(/%/g, '').substring(0, 10);
-    return `https://picsum.photos/seed/${seed}/400/300`;
-  } catch (error) {
-    console.error("Error generating food image:", error);
-    
     // Use a more reliable fallback with food-specific images
     const foodCategories = {
       'salmon': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop',
@@ -134,7 +111,7 @@ async function generateFoodImage(foodName: string, description: string): Promise
       'chicken': 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop',
       'fish': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop',
       'soup': 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop',
-      'dessert': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&h=300&fit=crop'
+      'dessert': 'https://images.unsplash.com/photo-1551024709-8f87befc6f87?w=400&h=300&fit=crop'
     };
     
     // Find matching category or use generic food image
@@ -146,6 +123,10 @@ async function generateFoodImage(foodName: string, description: string): Promise
     }
     
     // Generic food fallback
+    return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
+  } catch (error) {
+    console.error("Error generating food image:", error);
+    // Final fallback - generic food image
     return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
   }
 }

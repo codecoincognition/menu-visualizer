@@ -197,7 +197,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       });
       return;
     }
-    processMenuWithStream({ menuText });
+    processMenuMutation.mutate({ menuText });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,7 +217,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       }
       
       // Process the file directly
-      processMenuWithStream({ file });
+      processMenuMutation.mutate({ file });
       
       toast({
         title: "Processing file...",
@@ -326,10 +326,10 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={processingStatus?.isProcessing || !menuText.trim()}
+              disabled={processMenuMutation.isPending || !menuText.trim()}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              {processingStatus?.isProcessing ? "Processing..." : "Process Menu"}
+              {processMenuMutation.isPending ? "Processing..." : "Process Menu"}
             </Button>
 
             <div className="relative">
