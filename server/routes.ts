@@ -102,7 +102,10 @@ async function generateFoodImage(foodName: string, description: string): Promise
 
     const response = await gemini.models.generateContent({
       model: "gemini-2.0-flash-preview-image-generation",
-      contents: [prompt],
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseModalities: ["TEXT", "IMAGE"],
+      },
     });
 
     // Check if image was generated
@@ -308,6 +311,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching menu item:", error);
       res.status(500).json({ error: "Failed to fetch menu item" });
+    }
+  });
+
+  // Streaming endpoint for real-time menu processing updates
+  app.post("/api/process-menu-stream", upload.single("menuFile"), async (req, res) => {
+    try {
+      // Set up Server-Sent Events headers
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+      });
+
+      const sendEvent = (type: string, data: any) => {
+        res.write(`event: ${type}\n`);
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      };
+
+      const { menuText } = req.body;
+      const uploadedFile = req.file;
+
+      if (!process.env.GEMINI_API_KEY) {
+        sendEvent('error', { message: "Gemini API key not configured" });
+        res.end();
+        return;
+      }
+
+      let parsedItems: ParsedMenuItem[] = [];
+      let sourceText = "";
+
+      sendEvent('status', { message: 'Starting menu processing...' });
+
+      // Handle uploaded file (image or text)
+      if (uploadedFile) {
+        if (uploadedFile.mimetype.startsWith('image/')) {
+          sendEvent('status', { message: 'Analyzing uploaded menu image...' });
+          parsedItems = await parseMenuFromImage(uploadedFile.buffer, uploadedFile.mimetype);
+          sourceText = `Uploaded image: ${uploadedFile.originalname}`;
+        } else if (uploadedFile.mimetype === 'text/plain') {
+          sendEvent('status', { message: 'Processing uploaded text file...' });
+          const textContent = uploadedFile.buffer.toString('utf-8');
+          parsedItems = await parseMenuText(textContent);
+          sourceText = textContent;
+        }
+      } else if (menuText && typeof menuText === 'string') {
+        sendEvent('status', { message: 'Parsing menu text...' });
+        parsedItems = await parseMenuText(menuText);
+        sourceText = menuText;
+      } else {
+        sendEvent('error', { message: "Please provide menu text or upload a menu file" });
+        res.end();
+        return;
+      }
+      
+      if (parsedItems.length === 0) {
+        sendEvent('error', { message: "No valid food items found in the menu" });
+        res.end();
+        return;
+      }
+
+      sendEvent('parsed', { 
+        count: parsedItems.length, 
+        items: parsedItems.map(item => item.name),
+        message: `Found ${parsedItems.length} menu items`
+      });
+
+      // Create menu session
+      const session = await storage.createMenuSession({
+        originalText: sourceText,
+      });
+
+      const menuItems = [];
+
+      // Process items one by one with real-time updates
+      for (let i = 0; i < parsedItems.length; i++) {
+        const item = parsedItems[i];
+        
+        sendEvent('processing', { 
+          current: i + 1, 
+          total: parsedItems.length, 
+          item: item.name,
+          message: `Generating image for "${item.name}"...`
+        });
+
+        try {
+          const imageUrl = await generateFoodImage(item.name, item.description);
+          
+          const menuItem = await storage.createMenuItem({
+            name: item.name,
+            description: item.description,
+            imageUrl: imageUrl,
+          });
+
+          menuItems.push(menuItem);
+
+          sendEvent('item-complete', {
+            item: menuItem,
+            current: i + 1,
+            total: parsedItems.length,
+            message: `✓ Generated image for "${item.name}"`
+          });
+
+        } catch (error) {
+          console.error(`Error processing item ${item.name}:`, error);
+          sendEvent('item-error', {
+            item: item.name,
+            error: 'Failed to generate image',
+            current: i + 1,
+            total: parsedItems.length,
+            message: `✗ Failed to generate image for "${item.name}"`
+          });
+        }
+      }
+
+      sendEvent('complete', {
+        sessionId: session.id,
+        menuItems: menuItems,
+        success: true,
+        message: `Processing complete! Generated ${menuItems.length} menu items.`
+      });
+
+      res.end();
+
+    } catch (error) {
+      console.error("Error processing menu:", error);
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ message: "Failed to process menu", error: error instanceof Error ? error.message : "Unknown error" })}\n\n`);
+      res.end();
     }
   });
 

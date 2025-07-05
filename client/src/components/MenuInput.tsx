@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
-import { Upload, FileText } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Upload, FileText, Loader2, CheckCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -25,8 +26,18 @@ interface MenuInputProps {
   onMenuProcessed: (menuItems: MenuItem[]) => void;
 }
 
+interface ProcessingStatus {
+  message: string;
+  current?: number;
+  total?: number;
+  items?: string[];
+  isProcessing: boolean;
+  completedItems: MenuItem[];
+}
+
 export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
   const [menuText, setMenuText] = useState("");
+  const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
   const { toast } = useToast();
 
   const processMenuMutation = useMutation({
@@ -68,6 +79,112 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
     },
   });
 
+  const processMenuWithStream = useCallback(async (data: { menuText?: string; file?: File }) => {
+    const formData = new FormData();
+    
+    if (data.file) {
+      formData.append('menuFile', data.file);
+    }
+    
+    if (data.menuText) {
+      formData.append('menuText', data.menuText);
+    }
+
+    setProcessingStatus({
+      message: 'Starting menu processing...',
+      isProcessing: true,
+      completedItems: []
+    });
+
+    try {
+      const response = await fetch('/api/process-menu-stream', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.substring(6));
+              
+              // Get the event type from previous line if available
+              const eventMatch = lines[lines.indexOf(line) - 1]?.match(/^event: (.+)$/);
+              const eventType = eventMatch ? eventMatch[1] : '';
+              
+              if (eventType === 'status') {
+                setProcessingStatus(prev => prev ? { ...prev, message: data.message } : null);
+              } else if (eventType === 'parsed') {
+                setProcessingStatus(prev => prev ? { 
+                  ...prev, 
+                  message: data.message,
+                  total: data.count,
+                  items: data.items
+                } : null);
+              } else if (eventType === 'processing') {
+                setProcessingStatus(prev => prev ? { 
+                  ...prev, 
+                  message: data.message,
+                  current: data.current,
+                  total: data.total
+                } : null);
+              } else if (eventType === 'item-complete') {
+                setProcessingStatus(prev => prev ? { 
+                  ...prev, 
+                  message: data.message,
+                  current: data.current,
+                  total: data.total,
+                  completedItems: [...prev.completedItems, data.item]
+                } : null);
+              } else if (eventType === 'complete') {
+                setProcessingStatus(null);
+                onMenuProcessed(data.menuItems);
+                setMenuText("");
+                toast({
+                  title: "Menu processed successfully!",
+                  description: data.message,
+                });
+                return;
+              } else if (eventType === 'error') {
+                setProcessingStatus(null);
+                toast({
+                  title: "Error processing menu",
+                  description: data.message,
+                  variant: "destructive",
+                });
+                return;
+              }
+            } catch (e) {
+              // Ignore parsing errors for incomplete chunks
+            }
+          }
+        }
+      }
+    } catch (error) {
+      setProcessingStatus(null);
+      toast({
+        title: "Connection error",
+        description: "Lost connection while processing menu",
+        variant: "destructive",
+      });
+    }
+  }, [onMenuProcessed, toast]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!menuText.trim()) {
@@ -78,7 +195,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       });
       return;
     }
-    processMenuMutation.mutate({ menuText });
+    processMenuWithStream({ menuText });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +215,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       }
       
       // Process the file directly
-      processMenuMutation.mutate({ file });
+      processMenuWithStream({ file });
       
       toast({
         title: "Processing file...",
@@ -162,10 +279,10 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={processMenuMutation.isPending || !menuText.trim()}
+              disabled={processingStatus?.isProcessing || !menuText.trim()}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              {processMenuMutation.isPending ? "Processing..." : "Process Menu"}
+              {processingStatus?.isProcessing ? "Processing..." : "Process Menu"}
             </Button>
 
             <div className="relative">
@@ -182,6 +299,51 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
             </div>
           </div>
         </form>
+
+        {/* Processing Status */}
+        {processingStatus && (
+          <Card className="mt-4">
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm font-medium">{processingStatus.message}</span>
+                </div>
+                
+                {processingStatus.total && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Progress</span>
+                      <span>{processingStatus.current || 0} / {processingStatus.total}</span>
+                    </div>
+                    <Progress 
+                      value={((processingStatus.current || 0) / processingStatus.total) * 100} 
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                {processingStatus.items && processingStatus.items.length > 0 && (
+                  <div className="text-sm">
+                    <p className="font-medium text-gray-700 mb-1">Found menu items:</p>
+                    <div className="text-gray-600 space-y-1">
+                      {processingStatus.items.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          {processingStatus.completedItems.some(completed => completed.name === item) ? (
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                          ) : (
+                            <div className="w-3 h-3 border border-gray-300 rounded-full" />
+                          )}
+                          <span className={processingStatus.completedItems.some(completed => completed.name === item) ? "text-green-700" : ""}>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
