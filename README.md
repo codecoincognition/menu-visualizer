@@ -2,7 +2,7 @@
 
 Transform text-based food menus into stunning visual displays with AI-generated images and intelligent menu analysis.
 
-![Menu Visualizer App Screenshot](client/public/screenshot.png)
+![Menu Visualizer App Screenshot](.github/images/app-screenshot.png)
 
 ## Overview
 
