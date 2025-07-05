@@ -292,9 +292,13 @@ export default function Home() {
                   )}
                 </div>
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Unified Input Area */}
-                  <div className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Option 1: Paste Menu Text */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">1</div>
+                      <h3 className="font-semibold text-gray-900">Paste Menu Text</h3>
+                    </div>
                     <Textarea
                       placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza"
                       value={menuText}
@@ -302,8 +306,24 @@ export default function Home() {
                       className="min-h-32 resize-none text-base leading-relaxed"
                       disabled={processMenuMutation.isPending}
                     />
+                  </div>
+
+                  {/* OR Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">OR</span>
+                    </div>
+                  </div>
                     
-                    {/* Upload Zone */}
+                  {/* Option 2: Upload Menu Image */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">2</div>
+                      <h3 className="font-semibold text-gray-900">Upload Menu Image</h3>
+                    </div>
                     <div className="relative">
                       <input
                         type="file"
@@ -317,8 +337,8 @@ export default function Home() {
                       <div 
                         className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer ${
                           dragActive 
-                            ? 'border-blue-500 bg-blue-50' 
-                            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                            ? 'border-green-500 bg-green-50' 
+                            : 'border-gray-300 hover:border-green-400 hover:bg-gray-50'
                         }`}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
@@ -331,7 +351,7 @@ export default function Home() {
                             </svg>
                           </div>
                           <div>
-                            <p className="text-base font-medium text-gray-700">Upload Menu Image</p>
+                            <p className="text-base font-medium text-gray-700">Upload Menu Photo</p>
                             <p className="text-sm text-gray-500">Drag & drop or click to browse</p>
                             <p className="text-xs text-gray-400 mt-1">Supports JPG, PNG images</p>
                           </div>
