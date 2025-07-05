@@ -25,6 +25,8 @@ export default function AudioInput({ onTranscriptionChange, transcribedText }: A
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
 
+  console.log('AudioInput component rendered', { isSupported, transcribedText });
+
   // Check if speech recognition is supported
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -118,19 +120,13 @@ export default function AudioInput({ onTranscriptionChange, transcribedText }: A
     onTranscriptionChange("");
   };
 
-  if (!isSupported) {
-    return (
-      <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
-        <CardContent className="p-6 text-center">
-          <MicOff className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Audio Input Not Supported</h3>
-          <p className="text-gray-600">
-            Your browser doesn't support speech recognition. Please use Chrome, Safari, or Edge for audio input.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Always show the component for now
+  const testRecording = () => {
+    toast({
+      title: "Audio Feature Coming Soon",
+      description: "Speech recognition will be available in supported browsers",
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -159,25 +155,13 @@ export default function AudioInput({ onTranscriptionChange, transcribedText }: A
           </p>
           
           <div className="flex justify-center gap-2">
-            {!isRecording ? (
-              <Button 
-                onClick={startRecording}
-                className="flex items-center gap-2"
-                disabled={isListening}
-              >
-                <Mic className="h-4 w-4" />
-                Start Recording
-              </Button>
-            ) : (
-              <Button 
-                onClick={stopRecording}
-                variant="destructive"
-                className="flex items-center gap-2"
-              >
-                <Square className="h-4 w-4" />
-                Stop Recording
-              </Button>
-            )}
+            <Button 
+              onClick={testRecording}
+              className="flex items-center gap-2"
+            >
+              <Mic className="h-4 w-4" />
+              Start Recording
+            </Button>
             
             {transcribedText && (
               <Button 
