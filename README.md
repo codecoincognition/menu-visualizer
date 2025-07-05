@@ -2,6 +2,8 @@
 
 Transform text-based food menus into stunning visual displays with AI-generated images and intelligent menu analysis.
 
+![Menu Visualizer App Screenshot](client/public/screenshot.png)
+
 ## Overview
 
 Menu Visualizer is a cutting-edge web application that uses Google's Gemini AI to transform traditional text menus or uploaded menu images into visually appealing food displays. The app intelligently parses menu items, generates high-quality food images, and presents them in an intuitive interface.
