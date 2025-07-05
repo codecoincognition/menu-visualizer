@@ -1,0 +1,64 @@
+Design Prompt: Redesign of the "Menu Visualizer" Landing Page
+Objective:
+To evolve the current "Menu Visualizer" screen into a more intuitive, interactive, and streamlined user experience. The new design should reduce cognitive load, guide the user directly to the core action, and create a sense of anticipation for the AI-generated results.
+
+Guiding Principles:
+
+Clarity over Clutter: Every element should have a clear purpose. Remove redundancy.
+
+Guided Action: The design should naturally lead the user's eye from the value proposition to the primary action.
+
+Interactive Engagement: Move from a static display to an interactive canvas that encourages user input.
+
+Manage Expectations: Hint at the outcome to make the tool's function more tangible from the start.
+
+Specific Design Requirements:
+1. Layout and Structure: Two-Column Experience
+
+Transition from the current single-column layout to a two-column layout.
+
+Left Column: This will be the dedicated "Input & Control" panel. It will house the text area and the primary action button.
+
+Right Column: This will be the "Output & Visualization" panel. It is where the generated food images will appear.
+
+In the initial "empty state," the right column should display a subtle placeholder. This could be a set of empty, ghosted image cards or a simple illustration with a message like "Your beautiful food images will appear here."
+
+2. Header and Typography:
+
+Eliminate Redundancy: Remove the large, centered "Menu Visualizer" H1 heading. The existing title in the top navigation bar is sufficient.
+
+Elevate the Sub-headline: Make the sub-headline ("Transform your menu text into beautiful food images with AI") more prominent. This should be the primary piece of text the user reads after the brand logo.
+
+3. The Unified Input Area (Left Column):
+
+Combine Inputs: Replace the separate text area and "Upload Menu" button with a single, large, unified input component.
+
+Functionality: This component should serve as both:
+
+A multi-line text area for pasting or typing.
+
+A drag-and-drop zone for text files.
+
+Instructional Text: The placeholder text inside should be clear and encouraging. Example: Paste your menu items here, one per line...
+
+Integrated Upload: Within this component, include a subtle text link for file uploads. For instance: ...or **browse for a file**. This removes the need for a secondary upload button.
+
+4. Interactive "Try a Sample" Feature:
+
+Remove the Static Box: Eliminate the separate "Sample Menu" informational box.
+
+Create an Actionable Link: Directly underneath the input area, add a clickable link or a small, secondary button with the text: Try a Sample Menu.
+
+Interaction: When a user clicks this link, the input area should be instantly populated with the sample menu items (Grilled Salmon, Caesar Salad, etc.), and the main CTA button should become active.
+
+5. The Primary Call-to-Action (CTA) Button:
+
+Single, Clear Button: There should be only one primary CTA button, located below the input area in the left column.
+
+Labeling: Use an action-oriented label like "Visualize Menu" or "Generate Images". Consider including a small, relevant icon (like a ✨ sparkle or a 🪄 magic wand) to reinforce the AI aspect.
+
+Dynamic State: The button's state is critical:
+
+Disabled (Default): The button is visually disabled (e.g., grayed out, low opacity) when the input area is empty.
+
+Enabled (Active): The button instantly becomes active and fully colored the moment the input area receives text (from typing, pasting, file upload, or using the sample).
