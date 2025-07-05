@@ -321,7 +321,7 @@ export default function Home() {
                         disabled={processMenuMutation.isPending}
                       />
                       <label htmlFor="file-upload" className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        browse for a file
+                        upload menu image here
                       </label>
                     </div>
                   </div>
