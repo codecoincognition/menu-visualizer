@@ -97,29 +97,53 @@ function parseMenuTextSimple(menuText: string): ParsedMenuItem[] {
 
 async function generateFoodImage(foodName: string, description: string): Promise<string> {
   try {
+    // Try using the image generation model first
     const prompt = `Generate a high-quality, professional food photography image of ${foodName}. ${description}. The image should be appetizing, well-lit, restaurant-quality presentation on a clean background.`;
 
     const response = await gemini.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash-preview-image-generation",
       contents: [prompt],
     });
 
-    // Since Gemini 2.0 Flash supports image generation, let's handle the response
+    // Check if image was generated
     if (response.candidates && response.candidates[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
         if (part.inlineData && part.inlineData.data) {
-          // Return base64 data URL for the generated image
           return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
         }
       }
     }
     
-    // Fallback to a more realistic food placeholder
-    return `https://source.unsplash.com/400x300/?${encodeURIComponent(foodName)},food`;
+    // Fallback to Picsum with food-specific seed
+    const seed = encodeURIComponent(foodName).replace(/%/g, '').substring(0, 10);
+    return `https://picsum.photos/seed/${seed}/400/300`;
   } catch (error) {
     console.error("Error generating food image:", error);
-    // Use Unsplash as fallback for realistic food images
-    return `https://source.unsplash.com/400x300/?${encodeURIComponent(foodName)},food`;
+    
+    // Use a more reliable fallback with food-specific images
+    const foodCategories = {
+      'salmon': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop',
+      'salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop',
+      'pasta': 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=400&h=300&fit=crop',
+      'pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
+      'taco': 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400&h=300&fit=crop',
+      'burger': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
+      'chicken': 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop',
+      'fish': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop',
+      'soup': 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop',
+      'dessert': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&h=300&fit=crop'
+    };
+    
+    // Find matching category or use generic food image
+    const lowerName = foodName.toLowerCase();
+    for (const [category, imageUrl] of Object.entries(foodCategories)) {
+      if (lowerName.includes(category)) {
+        return imageUrl;
+      }
+    }
+    
+    // Generic food fallback
+    return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
   }
 }
 
