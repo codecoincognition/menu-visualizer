@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX, Settings, Info } from "lucide-react";
 import logoPath from "@assets/menu_image_1751732090803.png";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface MenuItem {
   id: number;
@@ -74,7 +75,40 @@ export default function MenuResults({ menuItems, onBack }: MenuResultsProps) {
           />
           <h1 className="text-2xl font-bold text-gray-900">Menu Visualizer</h1>
         </div>
-        <div className="w-20" /> {/* Spacer for centering */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                About Menu Visualizer
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex justify-center">
+                <img 
+                  src={logoPath} 
+                  alt="Menu to Image Logo" 
+                  className="w-16 h-16 object-contain"
+                />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold">Menu Visualizer</h3>
+                <p className="text-sm text-gray-600">
+                  Transform your menu text into beautiful food images with AI
+                </p>
+                <div className="pt-2 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">Version 1.0.0</p>
+                  <p className="text-xs text-gray-500">Powered by Google Gemini AI</p>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Menu Items Header */}

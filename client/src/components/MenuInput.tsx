@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileText, Loader2, CheckCircle } from "lucide-react";
+import { Upload, FileText, Loader2, CheckCircle, Settings, Info } from "lucide-react";
 import logoPath from "@assets/menu_image_1751732090803.png";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -233,19 +234,60 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
-      {/* Header with Logo */}
-      <div className="text-center space-y-4">
-        <div className="flex justify-center">
-          <img 
-            src={logoPath} 
-            alt="Menu to Image Logo" 
-            className="w-20 h-20 object-contain"
-          />
+      {/* Header with Logo and Settings */}
+      <div className="relative">
+        {/* Settings Icon */}
+        <div className="absolute top-0 right-0">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Info className="h-5 w-5" />
+                  About Menu Visualizer
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="flex justify-center">
+                  <img 
+                    src={logoPath} 
+                    alt="Menu to Image Logo" 
+                    className="w-16 h-16 object-contain"
+                  />
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-semibold">Menu Visualizer</h3>
+                  <p className="text-sm text-gray-600">
+                    Transform your menu text into beautiful food images with AI
+                  </p>
+                  <div className="pt-2 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">Version 1.0.0</p>
+                    <p className="text-xs text-gray-500">Powered by Google Gemini AI</p>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-        <h1 className="text-4xl font-bold text-gray-900">Menu Visualizer</h1>
-        <p className="text-lg text-gray-600">
-          Transform your menu text into beautiful food images with AI
-        </p>
+        
+        {/* Main Header */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img 
+              src={logoPath} 
+              alt="Menu to Image Logo" 
+              className="w-20 h-20 object-contain"
+            />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900">Menu Visualizer</h1>
+          <p className="text-lg text-gray-600">
+            Transform your menu text into beautiful food images with AI
+          </p>
+        </div>
       </div>
 
       {/* Example Menu Image */}
