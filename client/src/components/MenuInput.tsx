@@ -403,10 +403,34 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
                     <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
                     <h3 className="font-medium text-gray-900">Speak Menu Items</h3>
                   </div>
-                  <AudioInput 
-                    onTranscriptionChange={setAudioText}
-                    transcribedText={audioText}
-                  />
+                  <div className="p-4 border-2 border-dashed border-orange-300 rounded-lg text-center">
+                    <Mic className="mx-auto h-8 w-8 text-orange-600 mb-2" />
+                    <p className="text-sm text-gray-600 mb-3">
+                      Click to record your menu items with voice
+                    </p>
+                    <Button 
+                      onClick={() => {
+                        toast({
+                          title: "Audio Recording",
+                          description: "Audio feature coming soon - speak your menu items",
+                        });
+                      }}
+                      className="flex items-center gap-2 mx-auto"
+                    >
+                      <Mic className="h-4 w-4" />
+                      Start Recording
+                    </Button>
+                    {audioText && (
+                      <div className="mt-3">
+                        <Textarea
+                          value={audioText}
+                          onChange={(e) => setAudioText(e.target.value)}
+                          placeholder="Your spoken menu items will appear here..."
+                          className="min-h-20 text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Primary CTA Button */}
