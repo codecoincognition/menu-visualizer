@@ -99,6 +99,13 @@ Drizzle ORM configured with PostgreSQL schema:
 ## Changelog
 
 ```
+- July 05, 2025: Added footer and legal pages
+  - Created fixed footer with copyright notice and links
+  - Added Terms of Service page with comprehensive legal content
+  - Added Privacy Policy page with data handling information
+  - Implemented proper routing for new legal pages
+  - Added bottom padding to all pages to accommodate fixed footer
+
 - July 05, 2025: Transformed app into Menu Visualizer
   - Updated schema for menu items and sessions
   - Added text and image menu processing with Gemini AI
