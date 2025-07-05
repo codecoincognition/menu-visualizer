@@ -1,18 +1,32 @@
-import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const imageAnalyses = pgTable("image_analyses", {
+export const menuItems = pgTable("menu_items", {
   id: serial("id").primaryKey(),
-  imageData: text("image_data").notNull(), // base64 encoded image
-  analysisText: text("analysis_text").notNull(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertImageAnalysisSchema = createInsertSchema(imageAnalyses).omit({
+export const menuSessions = pgTable("menu_sessions", {
+  id: serial("id").primaryKey(),
+  originalText: text("original_text").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertImageAnalysis = z.infer<typeof insertImageAnalysisSchema>;
-export type ImageAnalysis = typeof imageAnalyses.$inferSelect;
+export const insertMenuSessionSchema = createInsertSchema(menuSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
+export type MenuItem = typeof menuItems.$inferSelect;
+export type InsertMenuSession = z.infer<typeof insertMenuSessionSchema>;
+export type MenuSession = typeof menuSessions.$inferSelect;

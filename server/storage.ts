@@ -1,37 +1,70 @@
-import { imageAnalyses, type ImageAnalysis, type InsertImageAnalysis } from "@shared/schema";
+import { 
+  type MenuItem, 
+  type InsertMenuItem, 
+  type MenuSession, 
+  type InsertMenuSession 
+} from "@shared/schema";
 
 export interface IStorage {
-  createImageAnalysis(analysis: InsertImageAnalysis): Promise<ImageAnalysis>;
-  getImageAnalysis(id: number): Promise<ImageAnalysis | undefined>;
-  getAllImageAnalyses(): Promise<ImageAnalysis[]>;
+  createMenuSession(session: InsertMenuSession): Promise<MenuSession>;
+  getMenuSession(id: number): Promise<MenuSession | undefined>;
+  createMenuItem(item: InsertMenuItem): Promise<MenuItem>;
+  getMenuItem(id: number): Promise<MenuItem | undefined>;
+  getMenuItemsBySession(sessionId: number): Promise<MenuItem[]>;
+  getAllMenuItems(): Promise<MenuItem[]>;
 }
 
 export class MemStorage implements IStorage {
-  private analyses: Map<number, ImageAnalysis>;
-  private currentId: number;
+  private menuSessions: Map<number, MenuSession>;
+  private menuItems: Map<number, MenuItem>;
+  private currentSessionId: number;
+  private currentItemId: number;
 
   constructor() {
-    this.analyses = new Map();
-    this.currentId = 1;
+    this.menuSessions = new Map();
+    this.menuItems = new Map();
+    this.currentSessionId = 1;
+    this.currentItemId = 1;
   }
 
-  async createImageAnalysis(insertAnalysis: InsertImageAnalysis): Promise<ImageAnalysis> {
-    const id = this.currentId++;
-    const analysis: ImageAnalysis = {
-      ...insertAnalysis,
+  async createMenuSession(insertSession: InsertMenuSession): Promise<MenuSession> {
+    const id = this.currentSessionId++;
+    const session: MenuSession = {
+      ...insertSession,
       id,
       createdAt: new Date(),
     };
-    this.analyses.set(id, analysis);
-    return analysis;
+    this.menuSessions.set(id, session);
+    return session;
   }
 
-  async getImageAnalysis(id: number): Promise<ImageAnalysis | undefined> {
-    return this.analyses.get(id);
+  async getMenuSession(id: number): Promise<MenuSession | undefined> {
+    return this.menuSessions.get(id);
   }
 
-  async getAllImageAnalyses(): Promise<ImageAnalysis[]> {
-    return Array.from(this.analyses.values());
+  async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
+    const id = this.currentItemId++;
+    const item: MenuItem = {
+      ...insertItem,
+      id,
+      createdAt: new Date(),
+    };
+    this.menuItems.set(id, item);
+    return item;
+  }
+
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    return this.menuItems.get(id);
+  }
+
+  async getMenuItemsBySession(sessionId: number): Promise<MenuItem[]> {
+    // For now, return all items since we don't have session linking in the schema
+    // In a real app, you'd add a sessionId foreign key to menuItems
+    return Array.from(this.menuItems.values());
+  }
+
+  async getAllMenuItems(): Promise<MenuItem[]> {
+    return Array.from(this.menuItems.values());
   }
 }
 

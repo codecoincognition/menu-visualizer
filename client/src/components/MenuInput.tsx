@@ -1,0 +1,156 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Upload, FileText } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+interface MenuItem {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl: string;
+  createdAt: Date;
+}
+
+interface ProcessMenuResponse {
+  sessionId: number;
+  menuItems: MenuItem[];
+  success: boolean;
+}
+
+interface MenuInputProps {
+  onMenuProcessed: (menuItems: MenuItem[]) => void;
+}
+
+export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
+  const [menuText, setMenuText] = useState("");
+  const { toast } = useToast();
+
+  const processMenuMutation = useMutation({
+    mutationFn: async (text: string): Promise<ProcessMenuResponse> => {
+      const response = await apiRequest("POST", "/api/process-menu", { menuText: text });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      onMenuProcessed(data.menuItems);
+      toast({
+        title: "Menu processed successfully!",
+        description: `Found ${data.menuItems.length} food items`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error processing menu",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!menuText.trim()) {
+      toast({
+        title: "Please enter menu text",
+        description: "Add some menu items to visualize",
+        variant: "destructive",
+      });
+      return;
+    }
+    processMenuMutation.mutate(menuText);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "text/plain") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setMenuText(text);
+      };
+      reader.readAsText(file);
+    } else {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a text file (.txt)",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-gray-900">Visualize Your Menu</h1>
+        <p className="text-lg text-gray-600">
+          Upload a menu image to see dishes come to life with names and pictures.
+        </p>
+      </div>
+
+      {/* Example Menu Image */}
+      <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <div className="aspect-video bg-white rounded-lg shadow-sm flex items-center justify-center">
+          <div className="text-center p-8">
+            <FileText className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Sample Menu</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>• Grilled Salmon with lemon and herbs</p>
+              <p>• Caesar Salad with romaine lettuce</p>
+              <p>• Pasta Carbonara with bacon</p>
+              <p>• Margherita Pizza with fresh basil</p>
+              <p>• Chicken Tacos with salsa</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Input Section */}
+      <div className="space-y-4">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Menu Uploaded Yet</h2>
+          <p className="text-gray-600">
+            Tap the button below to upload your menu and start visualizing your dishes.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Textarea
+              placeholder="Paste your menu text here or upload a text file..."
+              value={menuText}
+              onChange={(e) => setMenuText(e.target.value)}
+              className="min-h-32 resize-none"
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <Button
+              type="submit"
+              disabled={processMenuMutation.isPending || !menuText.trim()}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              {processMenuMutation.isPending ? "Processing..." : "Process Menu"}
+            </Button>
+
+            <div className="relative">
+              <input
+                type="file"
+                accept=".txt"
+                onChange={handleFileUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <Button type="button" variant="outline" className="w-full">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload File
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

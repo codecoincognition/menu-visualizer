@@ -1,8 +1,8 @@
-# Multimodal AI Application
+# Menu Visualizer Application
 
 ## Overview
 
-This is a full-stack educational application demonstrating multimodal AI capabilities, specifically image analysis and text-to-speech functionality. The application allows users to upload images, analyze them using Google's Gemini Vision API, and listen to the analysis results using browser-based text-to-speech.
+This is a full-stack food menu visualization application that transforms text-based menu items into visual displays with AI-generated food images. The application uses Google's Gemini API to parse menu text, extract food items, and create engaging visual presentations with text-to-speech functionality to read menu items aloud.
 
 ## System Architecture
 
@@ -23,23 +23,24 @@ This is a full-stack educational application demonstrating multimodal AI capabil
 
 ### Key Components
 
-#### Image Processing Pipeline
-1. **File Upload**: Multer middleware handles image uploads with validation
-2. **Format Conversion**: Images converted to base64 for Gemini API
-3. **AI Analysis**: Google Gemini 2.5 Flash model analyzes uploaded images
-4. **Result Storage**: Analysis results stored in memory with structured schema
+#### Menu Processing Pipeline
+1. **Text Input**: Users can paste menu text or upload text files
+2. **AI Parsing**: Google Gemini 1.5 Flash extracts food items from text
+3. **Food Item Extraction**: Filters valid food items and generates descriptions
+4. **Image Generation**: Creates placeholder food images for visual display
+5. **Result Storage**: Menu items stored in memory with structured schema
 
 #### Text-to-Speech Integration
-- Browser-based Speech Synthesis API
-- Playback controls with speed adjustment
-- Progress tracking and visual feedback
+- Browser-based Speech Synthesis API for reading menu items aloud
+- Play/pause controls for menu narration
+- Comprehensive menu reading functionality
 - Fallback handling for unsupported browsers
 
 #### UI Components
-- **ImageUpload**: Drag-and-drop file upload with preview
-- **ImageAnalysis**: Results display with copy functionality
-- **AudioPlayer**: Text-to-speech playback with controls
-- **CodeExamples**: Educational modal showing implementation details
+- **MenuInput**: Text input area with file upload support
+- **MenuResults**: Visual grid display of food items with images
+- **AudioPlayer**: Text-to-speech functionality for menu items
+- **Navigation**: Bottom navigation bar matching mobile design patterns
 
 ## Data Flow
 
