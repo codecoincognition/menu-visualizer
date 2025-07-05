@@ -11,15 +11,32 @@ interface MenuItem {
   createdAt: Date;
 }
 
+interface ProcessMenuResponse {
+  sessionId: number;
+  menuItems: MenuItem[];
+  success: boolean;
+}
+
 export default function Home() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [sessionData, setSessionData] = useState<{ sessionId: number; originalText: string } | null>(null);
 
-  const handleMenuProcessed = (items: MenuItem[]) => {
+  const handleMenuProcessed = (items: MenuItem[], sessionId?: number) => {
     setMenuItems(items);
+    if (sessionId) {
+      // Fetch session data to get original input
+      fetch(`/api/menu-sessions/${sessionId}`)
+        .then(res => res.json())
+        .then(session => {
+          setSessionData({ sessionId, originalText: session.originalText });
+        })
+        .catch(err => console.error('Failed to fetch session:', err));
+    }
   };
 
   const handleGoBack = () => {
     setMenuItems([]);
+    setSessionData(null);
   };
 
   return (
@@ -41,6 +58,7 @@ export default function Home() {
             <MenuResults 
               menuItems={menuItems} 
               onBack={handleGoBack}
+              originalInput={sessionData?.originalText || ""}
             />
           )}
         </div>

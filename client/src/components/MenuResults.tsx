@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Volume2, VolumeX, Settings, Info } from "lucide-react";
 import logoPath from "@assets/menu_image_1751732090803.png";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,9 +16,10 @@ interface MenuItem {
 interface MenuResultsProps {
   menuItems: MenuItem[];
   onBack: () => void;
+  originalInput: string;
 }
 
-export default function MenuResults({ menuItems, onBack }: MenuResultsProps) {
+export default function MenuResults({ menuItems, onBack, originalInput }: MenuResultsProps) {
   const [isReading, setIsReading] = useState(false);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
@@ -110,6 +111,25 @@ export default function MenuResults({ menuItems, onBack }: MenuResultsProps) {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Original Input Section */}
+      {originalInput && (
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Original Input</h3>
+            {originalInput.startsWith('Uploaded image:') ? (
+              <div className="text-sm text-gray-600">
+                <p className="font-medium">📁 {originalInput}</p>
+                <p className="text-xs text-gray-500 mt-1">Image was processed and analyzed for menu items</p>
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {originalInput}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Menu Items Header */}
       <div className="flex items-center justify-between">

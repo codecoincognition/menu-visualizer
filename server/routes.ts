@@ -325,6 +325,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get menu session
+  app.get("/api/menu-sessions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid session ID" });
+      }
+
+      const session = await storage.getMenuSession(id);
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      res.json(session);
+    } catch (error) {
+      console.error("Error fetching session:", error);
+      res.status(500).json({ error: "Failed to fetch session" });
+    }
+  });
+
   // Streaming endpoint for real-time menu processing updates
   app.post("/api/process-menu-stream", upload.single("menuFile"), async (req, res) => {
     try {

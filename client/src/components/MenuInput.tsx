@@ -25,7 +25,7 @@ interface ProcessMenuResponse {
 }
 
 interface MenuInputProps {
-  onMenuProcessed: (menuItems: MenuItem[]) => void;
+  onMenuProcessed: (menuItems: MenuItem[], sessionId?: number) => void;
 }
 
 interface ProcessingStatus {
@@ -66,7 +66,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
       return response.json();
     },
     onSuccess: (data) => {
-      onMenuProcessed(data.menuItems);
+      onMenuProcessed(data.menuItems, data.sessionId);
       toast({
         title: "Menu processed successfully!",
         description: `Found ${data.menuItems.length} food items`,
