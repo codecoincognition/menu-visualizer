@@ -435,18 +435,16 @@ export default function Home() {
                   <div className="grid gap-4">
                     {menuItems.map((item) => (
                       <Card key={item.id} className="overflow-hidden">
-                        <div className="flex">
-                          <div className="w-24 h-24 flex-shrink-0">
-                            <img 
-                              src={item.imageUrl} 
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 p-4">
-                            <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                            <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
-                          </div>
+                        <div className="aspect-video relative mb-3">
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.name}
+                            className="w-full h-full object-cover rounded-t-lg"
+                          />
+                        </div>
+                        <div className="p-4 pt-0">
+                          <h3 className="font-semibold text-gray-900 mb-2 text-lg">{item.name}</h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
                         </div>
                       </Card>
                     ))}
