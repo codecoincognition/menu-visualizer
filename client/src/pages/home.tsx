@@ -2,9 +2,22 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Settings, Info, Loader2, ArrowLeft, Volume2, VolumeX } from "lucide-react";
+import {
+  Settings,
+  Info,
+  Loader2,
+  ArrowLeft,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import logoPath from "@assets/menu_image_1751732090803.png";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,15 +36,17 @@ interface ProcessMenuResponse {
 }
 
 function ProcessingOverlay() {
-  const [currentMessage, setCurrentMessage] = useState("Starting menu processing...");
+  const [currentMessage, setCurrentMessage] = useState(
+    "Starting menu processing...",
+  );
   const [messageIndex, setMessageIndex] = useState(0);
 
   const messages = [
     "Analyzing your menu input...",
     "Extracting food items...",
-    "Generating AI descriptions...", 
+    "Generating AI descriptions...",
     "Creating beautiful food images...",
-    "Finalizing results..."
+    "Finalizing results...",
   ];
 
   useEffect(() => {
@@ -51,15 +66,17 @@ function ProcessingOverlay() {
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
         <div className="text-center space-y-6">
           <div className="flex justify-center">
-            <img 
-              src={logoPath} 
-              alt="Menu to Image Logo" 
+            <img
+              src={logoPath}
+              alt="Menu to Image Logo"
               className="w-16 h-16 object-contain"
             />
           </div>
           <div className="space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
-            <h3 className="text-lg font-semibold text-gray-900">Processing Your Menu</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Processing Your Menu
+            </h3>
             <p className="text-base text-gray-700 min-h-[1.5rem] transition-all duration-500">
               {currentMessage}
             </p>
@@ -77,30 +94,38 @@ export default function Home() {
   const [menuText, setMenuText] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [sessionData, setSessionData] = useState<{ sessionId: number; originalText: string } | null>(null);
+  const [sessionData, setSessionData] = useState<{
+    sessionId: number;
+    originalText: string;
+  } | null>(null);
+  const [uploadedImageData, setUploadedImageData] = useState<string | null>(null);
   const [isReading, setIsReading] = useState(false);
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [currentUtterance, setCurrentUtterance] =
+    useState<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
   const processMenuMutation = useMutation({
-    mutationFn: async (data: { menuText?: string; file?: File }): Promise<ProcessMenuResponse> => {
+    mutationFn: async (data: {
+      menuText?: string;
+      file?: File;
+    }): Promise<ProcessMenuResponse> => {
       const formData = new FormData();
-      
+
       if (data.file) {
-        formData.append('menuFile', data.file);
+        formData.append("menuFile", data.file);
       }
       if (data.menuText) {
-        formData.append('menuText', data.menuText);
+        formData.append("menuText", data.menuText);
       }
 
-      const response = await fetch('/api/process-menu', {
-        method: 'POST',
+      const response = await fetch("/api/process-menu", {
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to process menu');
+        throw new Error(errorData.error || "Failed to process menu");
       }
 
       return response.json();
@@ -110,11 +135,14 @@ export default function Home() {
       if (data.sessionId) {
         // Fetch session data to get original input
         fetch(`/api/menu-sessions/${data.sessionId}`)
-          .then(res => res.json())
-          .then(session => {
-            setSessionData({ sessionId: data.sessionId, originalText: session.originalText });
+          .then((res) => res.json())
+          .then((session) => {
+            setSessionData({
+              sessionId: data.sessionId,
+              originalText: session.originalText,
+            });
           })
-          .catch(err => console.error('Failed to fetch session:', err));
+          .catch((err) => console.error("Failed to fetch session:", err));
       }
       toast({
         title: "Menu processed successfully!",
@@ -147,18 +175,26 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type.startsWith('image/') || file.type === 'text/plain') {
-      if (file.type === 'text/plain') {
+    if (file.type.startsWith("image/") || file.type === "text/plain") {
+      if (file.type === "text/plain") {
         const reader = new FileReader();
         reader.onload = (e) => {
           const text = e.target?.result as string;
           setMenuText(text);
         };
         reader.readAsText(file);
+      } else if (file.type.startsWith("image/")) {
+        // Store the image data for display
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imageData = e.target?.result as string;
+          setUploadedImageData(imageData);
+        };
+        reader.readAsDataURL(file);
       }
-      
+
       processMenuMutation.mutate({ file });
-      
+
       toast({
         title: "Processing file...",
         description: "Your menu file is being analyzed",
@@ -175,18 +211,26 @@ export default function Home() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragActive(false);
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      if (file.type.startsWith('image/') || file.type === 'text/plain') {
-        if (file.type === 'text/plain') {
+      if (file.type.startsWith("image/") || file.type === "text/plain") {
+        if (file.type === "text/plain") {
           const reader = new FileReader();
           reader.onload = (e) => {
             const text = e.target?.result as string;
             setMenuText(text);
           };
           reader.readAsText(file);
+        } else if (file.type.startsWith("image/")) {
+          // Store the image data for display
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const imageData = e.target?.result as string;
+            setUploadedImageData(imageData);
+          };
+          reader.readAsDataURL(file);
         }
         processMenuMutation.mutate({ file });
       }
@@ -216,6 +260,7 @@ export default function Home() {
     setMenuItems([]);
     setSessionData(null);
     setMenuText("");
+    setUploadedImageData(null);
   };
 
   const handleReadMenu = () => {
@@ -226,19 +271,21 @@ export default function Home() {
       setCurrentUtterance(null);
     } else {
       // Start reading
-      const menuText = menuItems.map(item => `${item.name}. ${item.description}`).join('. ');
-      
-      if ('speechSynthesis' in window) {
+      const menuText = menuItems
+        .map((item) => `${item.name}. ${item.description}`)
+        .join(". ");
+
+      if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(menuText);
         utterance.rate = 0.8;
         utterance.pitch = 1;
         utterance.volume = 1;
-        
+
         utterance.onend = () => {
           setIsReading(false);
           setCurrentUtterance(null);
         };
-        
+
         utterance.onerror = () => {
           setIsReading(false);
           setCurrentUtterance(null);
@@ -248,7 +295,7 @@ export default function Home() {
             variant: "destructive",
           });
         };
-        
+
         setCurrentUtterance(utterance);
         setIsReading(true);
         speechSynthesis.speak(utterance);
@@ -269,12 +316,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src={logoPath} 
-                alt="Menu to Image Logo" 
+              <img
+                src={logoPath}
+                alt="Menu to Image Logo"
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-xl font-semibold text-gray-900">Menu Visualizer</span>
+              <span className="text-xl font-semibold text-gray-900">
+                Menu Visualizer
+              </span>
             </div>
             <Dialog>
               <DialogTrigger asChild>
@@ -291,20 +340,26 @@ export default function Home() {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="flex justify-center">
-                    <img 
-                      src={logoPath} 
-                      alt="Menu to Image Logo" 
+                    <img
+                      src={logoPath}
+                      alt="Menu to Image Logo"
                       className="w-16 h-16 object-contain"
                     />
                   </div>
                   <div className="text-center space-y-2">
                     <h3 className="text-lg font-semibold">Menu Visualizer</h3>
                     <p className="text-sm text-gray-600">
-                      Transform your menu text into beautiful food images with AI
+                      Transform your menu text into beautiful food images with
+                      AI
                     </p>
                     <div className="pt-2 border-t border-gray-200">
                       <p className="text-xs text-gray-500">Version 1.0.0</p>
-                      <p className="text-xs text-gray-500">Powered by Google Gemini AI</p>
+                      <p className="text-xs text-gray-500">
+                        Powered by Google Gemini AI
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Developed by Vikas Sah (vikassah@gmail.com)
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -329,7 +384,9 @@ export default function Home() {
             <Card className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">Input Your Menu</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Input Your Menu
+                  </h2>
                   {menuItems.length > 0 && (
                     <Button
                       onClick={handleGoBack}
@@ -342,13 +399,17 @@ export default function Home() {
                     </Button>
                   )}
                 </div>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Option 1: Paste Menu Text */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">1</div>
-                      <h3 className="font-semibold text-gray-900">Paste Menu Text</h3>
+                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                        1
+                      </div>
+                      <h3 className="font-semibold text-gray-900">
+                        Paste Menu Text
+                      </h3>
                     </div>
                     <Textarea
                       placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza"
@@ -368,12 +429,16 @@ export default function Home() {
                       <span className="px-2 bg-white text-gray-500">OR</span>
                     </div>
                   </div>
-                    
+
                   {/* Option 2: Upload Menu Image */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">2</div>
-                      <h3 className="font-semibold text-gray-900">Upload Menu Image</h3>
+                      <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                        2
+                      </div>
+                      <h3 className="font-semibold text-gray-900">
+                        Upload Menu Image
+                      </h3>
                     </div>
                     <div className="relative">
                       <input
@@ -385,11 +450,11 @@ export default function Home() {
                         disabled={processMenuMutation.isPending}
                         onDragEnter={handleDragOver}
                       />
-                      <div 
+                      <div
                         className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer ${
-                          dragActive 
-                            ? 'border-green-500 bg-green-50' 
-                            : 'border-gray-300 hover:border-green-400 hover:bg-gray-50'
+                          dragActive
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-300 hover:border-green-400 hover:bg-gray-50"
                         }`}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
@@ -397,14 +462,30 @@ export default function Home() {
                       >
                         <div className="space-y-2">
                           <div className="text-gray-400">
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            <svg
+                              className="w-8 h-8 mx-auto"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              />
                             </svg>
                           </div>
                           <div>
-                            <p className="text-base font-medium text-gray-700">Upload Menu Photo</p>
-                            <p className="text-sm text-gray-500">Drag & drop or click to browse</p>
-                            <p className="text-xs text-gray-400 mt-1">Supports JPG, PNG images</p>
+                            <p className="text-base font-medium text-gray-700">
+                              Upload Menu Photo
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Drag & drop or click to browse
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              Supports JPG, PNG images
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -428,9 +509,9 @@ export default function Home() {
                     type="submit"
                     disabled={processMenuMutation.isPending || !menuText.trim()}
                     className={`w-full py-4 text-lg font-semibold transition-all duration-200 ${
-                      menuText.trim() 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg' 
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      menuText.trim()
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
                     {processMenuMutation.isPending ? (
@@ -439,9 +520,7 @@ export default function Home() {
                         Processing...
                       </>
                     ) : (
-                      <>
-                        ✨ Visualize Menu
-                      </>
+                      <>✨ Visualize Menu</>
                     )}
                   </Button>
                 </form>
@@ -461,16 +540,23 @@ export default function Home() {
                   <div className="text-center space-y-4">
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                        <div
+                          key={i}
+                          className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center"
+                        >
                           <div className="text-gray-400">
                             <div className="w-8 h-8 mx-auto mb-2 bg-gray-200 rounded"></div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <h3 className="text-lg font-medium text-gray-600">Once you provide your input, your beautiful food images will appear here</h3>
+                    <h3 className="text-lg font-medium text-gray-600">
+                      Once you provide your input, your beautiful food images
+                      will appear here
+                    </h3>
                     <p className="text-sm text-gray-500">
-                      AI-generated images will showcase each menu item with professional food photography
+                      AI-generated images will showcase each menu item with
+                      professional food photography
                     </p>
                   </div>
                 </div>
@@ -481,11 +567,30 @@ export default function Home() {
                   {sessionData?.originalText && (
                     <Card className="border-gray-200">
                       <CardContent className="p-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Original Input</h3>
-                        {sessionData.originalText.startsWith('Uploaded image:') ? (
-                          <div className="text-sm text-gray-600">
-                            <p className="font-medium">📁 {sessionData.originalText}</p>
-                            <p className="text-xs text-gray-500 mt-1">Image was processed and analyzed for menu items</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                          Original Input
+                        </h3>
+                        {sessionData.originalText.startsWith(
+                          "Uploaded image:",
+                        ) ? (
+                          <div className="space-y-3">
+                            {uploadedImageData && (
+                              <div className="max-w-md">
+                                <img 
+                                  src={uploadedImageData} 
+                                  alt="Original uploaded menu"
+                                  className="w-full h-auto rounded-lg border border-gray-200 shadow-sm"
+                                />
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-600">
+                              <p className="font-medium">
+                                📁 {sessionData.originalText}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Image was processed and analyzed for menu items
+                              </p>
+                            </div>
                           </div>
                         ) : (
                           <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
@@ -498,7 +603,9 @@ export default function Home() {
 
                   {/* Menu Items Header */}
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-gray-900">Menu Items ({menuItems.length})</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Menu Items ({menuItems.length})
+                    </h2>
                     <Button
                       onClick={handleReadMenu}
                       variant="outline"
@@ -525,8 +632,8 @@ export default function Home() {
                       <div key={item.id} className="group">
                         <div className="relative">
                           <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-200">
-                            <img 
-                              src={item.imageUrl} 
+                            <img
+                              src={item.imageUrl}
                               alt={item.name}
                               className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                             />
@@ -538,7 +645,9 @@ export default function Home() {
                             </div>
                           </div>
                           <div className="mt-3 text-center">
-                            <h3 className="font-semibold text-gray-900 text-base leading-tight">{item.name}</h3>
+                            <h3 className="font-semibold text-gray-900 text-base leading-tight">
+                              {item.name}
+                            </h3>
                           </div>
                         </div>
                       </div>
@@ -552,9 +661,7 @@ export default function Home() {
       </div>
 
       {/* Processing Overlay */}
-      {processMenuMutation.isPending && (
-        <ProcessingOverlay />
-      )}
+      {processMenuMutation.isPending && <ProcessingOverlay />}
     </div>
   );
 }
