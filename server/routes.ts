@@ -264,6 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const imageUrl = await generateFoodImage(item.name, item.description);
         
         const menuItem = await storage.createMenuItem({
+          sessionId: session.id,
           name: item.name,
           description: item.description,
           imageUrl: imageUrl,
@@ -432,6 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const imageUrl = await generateFoodImage(item.name, item.description);
           
           const menuItem = await storage.createMenuItem({
+            sessionId: session.id,
             name: item.name,
             description: item.description,
             imageUrl: imageUrl,
