@@ -21,6 +21,14 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
+// Speech Recognition API types
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 interface MenuItem {
   id: number;
   name: string;
@@ -103,7 +111,65 @@ export default function Home() {
   const [isReading, setIsReading] = useState(false);
   const [currentUtterance, setCurrentUtterance] =
     useState<SpeechSynthesisUtterance | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
   const { toast } = useToast();
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setAudioText(transcript);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        setIsListening(false);
+        toast({
+          title: "Speech Recognition Error",
+          description: "Please check your microphone permissions and try again.",
+          variant: "destructive",
+        });
+      };
+      
+      setRecognition(recognition);
+    }
+  }, [toast]);
+
+  const startListening = () => {
+    if (recognition) {
+      setAudioText("");
+      setIsListening(true);
+      recognition.start();
+    } else {
+      toast({
+        title: "Speech Recognition Not Supported",
+        description: "Your browser doesn't support speech recognition. Please use text input instead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsListening(false);
+    }
+  };
 
   const processMenuMutation = useMutation({
     mutationFn: async (data: {
@@ -161,7 +227,8 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!menuText.trim()) {
+    const textToProcess = menuText.trim() || audioText.trim();
+    if (!textToProcess) {
       toast({
         title: "Please enter menu text",
         description: "Add some menu items to visualize",
@@ -169,7 +236,7 @@ export default function Home() {
       });
       return;
     }
-    processMenuMutation.mutate({ menuText });
+    processMenuMutation.mutate({ menuText: textToProcess });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -538,16 +605,15 @@ export default function Home() {
                           </p>
                           <Button 
                             type="button"
-                            onClick={() => {
-                              toast({
-                                title: "Audio Recording",
-                                description: "Voice recording feature coming soon - please use text input for now",
-                              });
-                            }}
-                            className="bg-orange-600 hover:bg-orange-700 text-white text-xs px-3 py-1"
+                            onClick={isListening ? stopListening : startListening}
+                            className={`${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-600 hover:bg-orange-700'} text-white text-xs px-3 py-1`}
                             disabled={processMenuMutation.isPending}
                           >
-                            🎤 Start Recording
+                            {isListening ? (
+                              <>🔴 Stop Recording</>
+                            ) : (
+                              <>🎤 Start Recording</>
+                            )}
                           </Button>
                         </div>
                         {audioText && (
