@@ -294,35 +294,49 @@ export default function Home() {
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Unified Input Area */}
-                  <div className="relative">
+                  <div className="space-y-4">
                     <Textarea
-                      placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza&#10;&#10;...or browse for a file"
+                      placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza"
                       value={menuText}
                       onChange={(e) => setMenuText(e.target.value)}
-                      className="min-h-48 resize-none text-base leading-relaxed"
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      style={{
-                        backgroundColor: dragActive ? '#f3f4f6' : 'white',
-                        borderColor: dragActive ? '#3b82f6' : ''
-                      }}
+                      className="min-h-32 resize-none text-base leading-relaxed"
                       disabled={processMenuMutation.isPending}
                     />
                     
-                    {/* File Upload Integration */}
-                    <div className="absolute top-4 right-4">
+                    {/* Upload Zone */}
+                    <div className="relative">
                       <input
                         type="file"
                         accept="image/*,.txt"
                         onChange={handleFileUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         id="file-upload"
                         disabled={processMenuMutation.isPending}
+                        onDragEnter={handleDragOver}
                       />
-                      <label htmlFor="file-upload" className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        upload menu image here
-                      </label>
+                      <div 
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer ${
+                          dragActive 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                        }`}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                      >
+                        <div className="space-y-2">
+                          <div className="text-gray-400">
+                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-base font-medium text-gray-700">Upload Menu Image</p>
+                            <p className="text-sm text-gray-500">Drag & drop or click to browse</p>
+                            <p className="text-xs text-gray-400 mt-1">Supports JPG, PNG images</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
