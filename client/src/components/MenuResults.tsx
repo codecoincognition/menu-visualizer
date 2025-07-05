@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
+import logoPath from "@assets/menu_image_1751732090803.png";
 
 interface MenuItem {
   id: number;
@@ -65,7 +66,14 @@ export default function MenuResults({ menuItems, onBack }: MenuResultsProps) {
           <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold text-gray-900">Menu Visualizer</h1>
+        <div className="flex items-center gap-2">
+          <img 
+            src={logoPath} 
+            alt="Menu to Image Logo" 
+            className="w-8 h-8 object-contain"
+          />
+          <h1 className="text-2xl font-bold text-gray-900">Menu Visualizer</h1>
+        </div>
         <div className="w-20" /> {/* Spacer for centering */}
       </div>
 

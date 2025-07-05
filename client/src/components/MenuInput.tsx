@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Upload, FileText, Loader2, CheckCircle } from "lucide-react";
+import logoPath from "@assets/menu_image_1751732090803.png";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -232,11 +233,18 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Header with Logo */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Visualize Your Menu</h1>
+        <div className="flex justify-center">
+          <img 
+            src={logoPath} 
+            alt="Menu to Image Logo" 
+            className="w-20 h-20 object-contain"
+          />
+        </div>
+        <h1 className="text-4xl font-bold text-gray-900">Menu Visualizer</h1>
         <p className="text-lg text-gray-600">
-          Upload a menu image to see dishes come to life with names and pictures.
+          Transform your menu text into beautiful food images with AI
         </p>
       </div>
 
