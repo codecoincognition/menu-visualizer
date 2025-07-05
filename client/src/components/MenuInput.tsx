@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileText, Loader2, CheckCircle, Settings, Info } from "lucide-react";
+import { Upload, FileText, Loader2, CheckCircle, Settings, Info, Mic } from "lucide-react";
 import logoPath from "@assets/menu_image_1751732090803.png";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AudioInput from "./AudioInput";
 
 interface MenuItem {
   id: number;
@@ -39,6 +40,7 @@ interface ProcessingStatus {
 
 export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
   const [menuText, setMenuText] = useState("");
+  const [audioText, setAudioText] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
   const { toast } = useToast();
@@ -188,18 +190,7 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
     }
   }, [onMenuProcessed, toast]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!menuText.trim()) {
-      toast({
-        title: "Please enter menu text",
-        description: "Add some menu items to visualize",
-        variant: "destructive",
-      });
-      return;
-    }
-    processMenuMutation.mutate({ menuText });
-  };
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -341,71 +332,115 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-900">Input Your Menu</h2>
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Unified Input Area */}
-                  <div className="relative">
+                {/* Option 1: Paste Menu Text */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                    <h3 className="font-medium text-gray-900">Paste Menu Text</h3>
+                  </div>
+                  <div className="space-y-3">
                     <Textarea
-                      placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza&#10;&#10;...or browse for a file"
+                      placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza"
                       value={menuText}
                       onChange={(e) => setMenuText(e.target.value)}
-                      className="min-h-48 resize-none text-base leading-relaxed"
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      style={{
-                        backgroundColor: dragActive ? '#f3f4f6' : 'white',
-                        borderColor: dragActive ? '#3b82f6' : ''
-                      }}
+                      className="min-h-32 resize-none"
                     />
-                    
-                    {/* File Upload Integration */}
-                    <div className="absolute top-4 right-4">
-                      <input
-                        type="file"
-                        accept="image/*,.txt"
-                        onChange={handleFileUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        id="file-upload"
-                      />
-                      <label htmlFor="file-upload" className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        browse for a file
-                      </label>
+                    <div className="text-center">
+                      <button
+                        type="button"
+                        onClick={loadSampleMenu}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
+                      >
+                        Try a Sample Menu
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  {/* Try Sample Menu Link */}
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={loadSampleMenu}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
-                    >
-                      Try a Sample Menu
-                    </button>
+                <div className="text-center text-gray-400 font-medium">OR</div>
+
+                {/* Option 2: Upload Menu Image */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                    <h3 className="font-medium text-gray-900">Upload Menu Image</h3>
                   </div>
-
-                  {/* Primary CTA Button */}
-                  <Button
-                    type="submit"
-                    disabled={processMenuMutation.isPending || !menuText.trim()}
-                    className={`w-full py-4 text-lg font-semibold transition-all duration-200 ${
-                      menuText.trim() 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg' 
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  <Card 
+                    className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
+                      dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
                   >
-                    {processMenuMutation.isPending ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        ✨ Visualize Menu
-                      </>
-                    )}
-                  </Button>
-                </form>
+                    <input
+                      type="file"
+                      accept="image/*,.txt"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="file-upload"
+                    />
+                    <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600">
+                      <label htmlFor="file-upload" className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium">
+                        Upload Menu Photo
+                      </label>
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Drag & drop or click to browse
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Supports JPG, PNG images
+                    </p>
+                  </Card>
+                </div>
+
+                <div className="text-center text-gray-400 font-medium">OR</div>
+
+                {/* Option 3: Audio Input */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                    <h3 className="font-medium text-gray-900">Speak Menu Items</h3>
+                  </div>
+                  <AudioInput 
+                    onTranscriptionChange={setAudioText}
+                    transcribedText={audioText}
+                  />
+                </div>
+
+                {/* Primary CTA Button */}
+                <Button
+                  onClick={() => {
+                    const textToProcess = audioText.trim() || menuText.trim();
+                    if (!textToProcess) {
+                      toast({
+                        title: "Please provide menu input",
+                        description: "Enter text, upload an image, or record audio",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    processMenuMutation.mutate({ menuText: textToProcess });
+                  }}
+                  disabled={processMenuMutation.isPending || (!menuText.trim() && !audioText.trim())}
+                  className={`w-full py-4 text-lg font-semibold transition-all duration-200 ${
+                    (menuText.trim() || audioText.trim()) 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg' 
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {processMenuMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      ✨ Visualize Menu
+                    </>
+                  )}
+                </Button>
               </div>
             </Card>
           </div>
