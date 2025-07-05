@@ -332,6 +332,11 @@ export default function MenuInput({ onMenuProcessed }: MenuInputProps) {
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-900">Input Your Menu</h2>
                 
+                {/* DEBUG: Test if content is visible */}
+                <div className="bg-red-100 p-2 text-center text-red-800 font-bold">
+                  DEBUG: Can you see this red box? There should be 3 options below.
+                </div>
+                
                 {/* Option 1: Paste Menu Text */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">

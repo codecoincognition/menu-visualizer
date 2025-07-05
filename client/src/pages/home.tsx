@@ -92,6 +92,7 @@ function ProcessingOverlay() {
 
 export default function Home() {
   const [menuText, setMenuText] = useState("");
+  const [audioText, setAudioText] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [sessionData, setSessionData] = useState<{
@@ -370,21 +371,21 @@ export default function Home() {
       </div>
 
       {/* Main Content - Two Column Layout */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Main Headline */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">
             Transform your menu text into beautiful food images with AI
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Input & Control Panel */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="space-y-4">
+          <div className="space-y-4">
+            <Card className="p-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900">
                     Input Your Menu
                   </h2>
                   {menuItems.length > 0 && (
@@ -400,14 +401,14 @@ export default function Home() {
                   )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Option 1: Paste Menu Text */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                      <div className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold">
                         1
                       </div>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-medium text-gray-900 text-sm">
                         Paste Menu Text
                       </h3>
                     </div>
@@ -415,7 +416,7 @@ export default function Home() {
                       placeholder="Paste your menu items here, one per line...&#10;&#10;• Grilled Salmon with herbs&#10;• Caesar Salad with croutons&#10;• Pasta Carbonara&#10;• Margherita Pizza"
                       value={menuText}
                       onChange={(e) => setMenuText(e.target.value)}
-                      className="min-h-32 resize-none text-base leading-relaxed"
+                      className="min-h-24 resize-none text-sm leading-relaxed"
                       disabled={processMenuMutation.isPending}
                     />
                     
@@ -424,7 +425,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={loadSampleMenu}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
+                        className="text-blue-600 hover:text-blue-700 text-xs font-medium underline"
                         disabled={processMenuMutation.isPending}
                       >
                         Try a Sample Menu
@@ -433,22 +434,22 @@ export default function Home() {
                   </div>
 
                   {/* OR Divider */}
-                  <div className="relative">
+                  <div className="relative py-2">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-gray-300"></div>
                     </div>
-                    <div className="relative flex justify-center text-sm">
+                    <div className="relative flex justify-center text-xs">
                       <span className="px-2 bg-white text-gray-500">OR</span>
                     </div>
                   </div>
 
                   {/* Option 2: Upload Menu Image */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                      <div className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-semibold">
                         2
                       </div>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-medium text-gray-900 text-sm">
                         Upload Menu Image
                       </h3>
                     </div>
@@ -463,7 +464,7 @@ export default function Home() {
                         onDragEnter={handleDragOver}
                       />
                       <div
-                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer ${
+                        className={`border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 cursor-pointer ${
                           dragActive
                             ? "border-green-500 bg-green-50"
                             : "border-gray-300 hover:border-green-400 hover:bg-gray-50"
@@ -472,10 +473,10 @@ export default function Home() {
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                       >
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <div className="text-gray-400">
                             <svg
-                              className="w-8 h-8 mx-auto"
+                              className="w-6 h-6 mx-auto"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -489,14 +490,11 @@ export default function Home() {
                             </svg>
                           </div>
                           <div>
-                            <p className="text-base font-medium text-gray-700">
+                            <p className="text-sm font-medium text-gray-700">
                               Upload Menu Photo
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-gray-500">
                               Drag & drop or click to browse
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              Supports JPG, PNG images
                             </p>
                           </div>
                         </div>
@@ -504,19 +502,82 @@ export default function Home() {
                     </div>
                   </div>
 
+                  {/* OR Divider */}
+                  <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="px-2 bg-white text-gray-500">OR</span>
+                    </div>
+                  </div>
+
+                  {/* Option 3: Audio Input */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-semibold">
+                        3
+                      </div>
+                      <h3 className="font-medium text-gray-900 text-sm">
+                        Speak Menu Items
+                      </h3>
+                    </div>
+                    <div className="border-2 border-dashed border-orange-300 rounded-lg p-4 text-center">
+                      <div className="space-y-2">
+                        <div className="text-orange-500">
+                          <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">
+                            Record Menu Items
+                          </p>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Click to record your voice speaking menu items
+                          </p>
+                          <Button 
+                            type="button"
+                            onClick={() => {
+                              toast({
+                                title: "Audio Recording",
+                                description: "Voice recording feature coming soon - please use text input for now",
+                              });
+                            }}
+                            className="bg-orange-600 hover:bg-orange-700 text-white text-xs px-3 py-1"
+                            disabled={processMenuMutation.isPending}
+                          >
+                            🎤 Start Recording
+                          </Button>
+                        </div>
+                        {audioText && (
+                          <div className="mt-2">
+                            <Textarea
+                              value={audioText}
+                              onChange={(e) => setAudioText(e.target.value)}
+                              placeholder="Your spoken menu items will appear here..."
+                              className="min-h-16 text-xs"
+                              disabled={processMenuMutation.isPending}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Primary CTA Button */}
                   <Button
                     type="submit"
-                    disabled={processMenuMutation.isPending || !menuText.trim()}
-                    className={`w-full py-4 text-lg font-semibold transition-all duration-200 ${
-                      menuText.trim()
+                    disabled={processMenuMutation.isPending || (!menuText.trim() && !audioText.trim())}
+                    className={`w-full py-3 text-base font-semibold transition-all duration-200 ${
+                      (menuText.trim() || audioText.trim())
                         ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
                     {processMenuMutation.isPending ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Processing...
                       </>
                     ) : (
